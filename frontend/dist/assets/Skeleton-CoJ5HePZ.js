@@ -1,0 +1,1 @@
+import{j as a}from"./vendor-react-CWD70_fk.js";const l=({width:s="100%",height:o="1rem",circle:e=!1,className:n=""})=>{const r={width:s,height:o,borderRadius:e?"50%":"4px"},t=["animate-pulse bg-[#eeeef1] rounded",e?"rounded-full":"rounded",n].filter(Boolean).join(" ");return a.jsx("div",{className:t,style:r})};export{l as S};

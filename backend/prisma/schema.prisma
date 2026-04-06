@@ -1,0 +1,252 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  ADMIN
+  CLIENT
+}
+
+enum OrderStatus {
+  PENDING
+  PREPARING
+  DELIVERING
+  DELIVERED
+  CANCELLED
+}
+
+enum EventType {
+  WEDDING
+  SEMINAR
+  BIRTHDAY
+  CORPORATE
+  OTHER
+}
+
+enum EventStatus {
+  PENDING
+  QUOTED
+  CONFIRMED
+  COMPLETED
+  CANCELLED
+}
+
+enum DevisStatus {
+  DRAFT
+  SENT
+  ACCEPTED
+  REJECTED
+}
+
+enum InvoiceStatus {
+  PENDING
+  PAID
+  OVERDUE
+}
+
+model User {
+  id            String   @id @default(uuid())
+  email         String   @unique
+  password      String
+  firstName     String
+  lastName      String
+  phone         String?
+  address       String?
+  role          Role     @default(CLIENT)
+  loyaltyPoints Int      @default(0)
+  isActive      Boolean  @default(true)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  orders   Order[]
+  events   Event[]
+  reviews  Review[]
+  invoices Invoice[]
+
+  @@index([role])
+  @@index([isActive])
+  @@map("users")
+}
+
+model Category {
+  id          String   @id @default(uuid())
+  name        String   @unique
+  description String?
+  image       String?
+  sortOrder   Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  plats Plat[]
+
+  @@map("categories")
+}
+
+model Plat {
+  id              String   @id @default(uuid())
+  name            String
+  description     String?
+  price           Float
+  image           String?
+  allergens       String[] @default([])
+  available       Boolean  @default(true)
+  stockQuantity   Int      @default(0)
+  preparationTime Int? // in minutes
+  categoryId      String
+  isPlatDuJour    Boolean  @default(false)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  category   Category    @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  orderItems OrderItem[]
+  reviews    Review[]
+
+  @@index([categoryId])
+  @@index([available])
+  @@index([stockQuantity])
+  @@index([createdAt])
+  @@map("plats")
+}
+
+model Order {
+  id              String      @id @default(uuid())
+  orderNumber     String      @unique
+  userId          String
+  status          OrderStatus @default(PENDING)
+  totalAmount     Float
+  deliveryAddress String?
+  notes           String?
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+
+  user    User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  items   OrderItem[]
+  invoice Invoice?
+
+  @@index([userId])
+  @@index([status])
+  @@index([createdAt])
+  @@index([userId, status])
+  @@map("orders")
+}
+
+model OrderItem {
+  id        String @id @default(uuid())
+  orderId   String
+  platId    String
+  quantity  Int
+  unitPrice Float
+
+  order Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  plat  Plat  @relation(fields: [platId], references: [id], onDelete: Cascade)
+
+  @@index([orderId])
+  @@index([platId])
+  @@map("order_items")
+}
+
+model Event {
+  id         String      @id @default(uuid())
+  userId     String
+  eventType  EventType
+  title      String
+  eventDate  DateTime
+  guestCount Int
+  venue      String?
+  notes      String?
+  budget     Float?
+  status     EventStatus @default(PENDING)
+  createdAt  DateTime    @default(now())
+  updatedAt  DateTime    @updatedAt
+
+  user  User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  devis Devis[]
+
+  @@index([userId])
+  @@index([status])
+  @@index([eventDate])
+  @@index([userId, status])
+  @@map("events")
+}
+
+model Devis {
+  id          String      @id @default(uuid())
+  devisNumber String      @unique
+  eventId     String
+  totalAmount Float
+  validUntil  DateTime
+  status      DevisStatus @default(DRAFT)
+  notes       String?
+  pdfUrl      String?
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  event   Event       @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  items   DevisItem[]
+  invoice Invoice?
+
+  @@index([eventId])
+  @@index([status])
+  @@index([createdAt])
+  @@map("devis")
+}
+
+model DevisItem {
+  id          String @id @default(uuid())
+  devisId     String
+  description String
+  quantity    Int
+  unitPrice   Float
+
+  devis Devis @relation(fields: [devisId], references: [id], onDelete: Cascade)
+
+  @@index([devisId])
+  @@map("devis_items")
+}
+
+model Invoice {
+  id            String        @id @default(uuid())
+  invoiceNumber String        @unique
+  userId        String
+  orderId       String?       @unique
+  devisId       String?       @unique
+  amount        Float
+  pdfUrl        String?
+  status        InvoiceStatus @default(PENDING)
+  dueDate       DateTime?
+  paidAt        DateTime?
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  user  User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  order Order? @relation(fields: [orderId], references: [id], onDelete: SetNull)
+  devis Devis? @relation(fields: [devisId], references: [id], onDelete: SetNull)
+
+  @@index([userId])
+  @@index([status])
+  @@index([createdAt])
+  @@map("invoices")
+}
+
+model Review {
+  id        String   @id @default(uuid())
+  userId    String
+  platId    String
+  rating    Int // 1-5
+  comment   String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  plat Plat @relation(fields: [platId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, platId])
+  @@index([platId])
+  @@index([createdAt])
+  @@map("reviews")
+}
