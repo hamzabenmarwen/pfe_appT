@@ -2,7 +2,16 @@ import axios, { AxiosError, AxiosInstance, AxiosRequestConfig } from 'axios';
 import { AuthResponse, LoginCredentials, RegisterData, User } from '../types';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
-export const UPLOADS_URL = API_BASE_URL.replace('/api', '') + '/uploads';
+const API_ORIGIN = API_BASE_URL.replace(/\/api\/?$/, '');
+export const UPLOADS_URL = `${API_ORIGIN}/uploads`;
+
+export const resolveUploadUrl = (imagePath?: string | null): string => {
+  if (!imagePath) return '';
+  if (/^https?:\/\//i.test(imagePath)) return imagePath;
+
+  const normalizedPath = imagePath.startsWith('/') ? imagePath : `/${imagePath}`;
+  return `${API_ORIGIN}${normalizedPath}`;
+};
 
 // Create axios instance
 const apiClient: AxiosInstance = axios.create({

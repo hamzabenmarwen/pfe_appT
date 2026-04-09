@@ -6,7 +6,7 @@ import { Input } from '../../components/ui/Input';
 import { Modal } from '../../components/ui/Modal';
 import { Skeleton } from '../../components/ui/Skeleton';
 import { catalogueApi } from '../../services/catalogue';
-import { UPLOADS_URL } from '../../services/api';
+import { resolveUploadUrl } from '../../services/api';
 import { Category, Plat } from '../../types';
 import toast from 'react-hot-toast';
 
@@ -259,7 +259,7 @@ export const CataloguePage: React.FC = () => {
                     <tr key={plat.id} className="hover:bg-gray-50/50 transition-colors">
                       <td className="py-3 px-6">
                         {plat.image ? (
-                          <img src={`${UPLOADS_URL}/${plat.image}`} alt={plat.name} className="w-12 h-12 rounded-lg object-cover shadow-sm border border-gray-100" />
+                          <img src={resolveUploadUrl(plat.image)} alt={plat.name} className="w-12 h-12 rounded-lg object-cover shadow-sm border border-gray-100" />
                         ) : (
                           <div className="w-12 h-12 rounded-lg bg-gray-100 flex items-center justify-center text-gray-400">
                             <ImageIcon size={20} />

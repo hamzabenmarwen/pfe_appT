@@ -8,7 +8,7 @@ import { Input } from '../../components/ui/Input';
 import { useCart } from '../../contexts/CartContext';
 import { useAuth } from '../../contexts/AuthContext';
 import { ordersApi } from '../../services/orders';
-import { UPLOADS_URL } from '../../services/api';
+import { resolveUploadUrl } from '../../services/api';
 import toast from 'react-hot-toast';
 
 const fadeUp = {
@@ -154,7 +154,7 @@ export const CartPage: React.FC = () => {
                   <div className="w-24 h-24 bg-[#f8f8f9] rounded-xl overflow-hidden flex-shrink-0">
                     {item.plat.image ? (
                       <img
-                        src={`${UPLOADS_URL}/${item.plat.image}`}
+                        src={resolveUploadUrl(item.plat.image)}
                         alt={item.plat.name}
                         className="w-full h-full object-cover"
                       />

@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Search, ShoppingCart, Star } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { catalogueApi } from '../../services/catalogue';
-import { UPLOADS_URL } from '../../services/api';
+import { resolveUploadUrl } from '../../services/api';
 import { Category, Plat } from '../../types';
 import { useCart } from '../../contexts/CartContext';
 import toast from 'react-hot-toast';
@@ -163,7 +163,7 @@ export const CataloguePage: React.FC = () => {
                       <div className="sm:w-2/5 h-48 sm:h-auto relative bg-[#f8f8f9]">
                         {plat.image ? (
                            <img 
-                            src={`${UPLOADS_URL}/${plat.image}`} 
+                            src={resolveUploadUrl(plat.image)} 
                             alt={plat.name}
                             className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                           />
@@ -219,7 +219,7 @@ export const CataloguePage: React.FC = () => {
                   <div className="relative h-48 overflow-hidden bg-[#f8f8f9]">
                     {plat.image ? (
                       <img 
-                        src={`${UPLOADS_URL}/${plat.image}`} 
+                        src={resolveUploadUrl(plat.image)} 
                         alt={plat.name}
                         className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                       />

@@ -40,7 +40,9 @@ function isAllowedOrigin(origin?: string): boolean {
 
 // Middleware
 app.set('trust proxy', 1);
-app.use(helmet());
+app.use(helmet({
+  crossOriginResourcePolicy: { policy: 'cross-origin' },
+}));
 app.use(requestLogger);
 app.use(cors({
   origin: (origin, callback) => {

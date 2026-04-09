@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { ShoppingCart, Star, Clock, AlertTriangle, ChevronLeft, Send, Minus, Plus, Leaf } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { catalogueApi } from '../../services/catalogue';
+import { resolveUploadUrl } from '../../services/api';
 import { useAuth } from '../../contexts/AuthContext';
 import { useCart } from '../../contexts/CartContext';
 import { Plat, Review } from '../../types';
@@ -133,7 +134,7 @@ export const PlatDetailPage: React.FC = () => {
         >
           {plat.image ? (
             <img
-              src={`/uploads/${plat.image}`}
+              src={resolveUploadUrl(plat.image)}
               alt={plat.name}
               style={{ width: '100%', height: '420px', objectFit: 'cover', display: 'block' }}
             />
